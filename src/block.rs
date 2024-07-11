@@ -1,13 +1,16 @@
 use std::time::SystemTime;
+use clap::builder::Str;
 use crypto::digest::Digest;
 use crypto::sha2::Sha256;
 use log::info;
+use serde::{Deserialize, Serialize};
+use crate::errors::Result;
 
-pub type Result<T> = std::result::Result<T,failure::Error>;
+
 
 const TARGET_HEXT:usize=4;
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Block{
     timestamp:u128,
     transactions:String,
@@ -17,15 +20,16 @@ pub struct Block{
     nonce:i32,
 }
 
-#[derive(Debug)]
-pub struct Blockchain{
-    blocks:Vec<Block>
-}
+
 
 impl Block{
 
     pub fn get_hash(&self)->String{
         self.hash.clone()
+    }
+
+    pub(crate) fn get_previous_hash(&self) ->String {
+        self.prev_block_hash.clone()
     }
 
     pub fn new_genesis_block()->Block{
@@ -84,34 +88,4 @@ impl Block{
     }
 
    
-}
-
-impl Blockchain{
-    pub fn new() -> Blockchain{
-        Blockchain{
-            blocks:vec![Block::new_genesis_block()]
-        }
-    }
-
-    pub fn add_block(&mut self, data:String)->Result<()>{
-        let prev =self.blocks.last().unwrap();
-        let new_block = Block::new_block(data,prev.get_hash(),TARGET_HEXT)?;
-        self.blocks.push(new_block);
-        Ok(())
-    }
-}
-
-#[cfg(test)]
-
-mod tests{
-    use super::*;
-
-    #[test]
-    fn test_blockchain() {
-        let mut b = Blockchain::new();
-        b.add_block("data".to_string());
-        b.add_block("data2".to_string());
-        b.add_block("data3".to_string());
-        dbg!(b);
-    }
 }

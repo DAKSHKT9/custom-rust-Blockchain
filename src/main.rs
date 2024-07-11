@@ -1,5 +1,13 @@
+use cli::Cli;
+use crate::errors::Result;
+
 
 mod block;
-fn main(){
-    println!("hello");
+mod blockchain;
+mod errors;
+mod cli;
+fn main() -> Result<()>{
+    let mut cli = Cli::new()?;
+    cli.run()?;
+    Ok(())
 }
